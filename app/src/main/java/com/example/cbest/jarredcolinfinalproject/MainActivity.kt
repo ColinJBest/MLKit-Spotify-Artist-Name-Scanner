@@ -8,23 +8,21 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
 import java.io.File
 import java.io.IOException
-import java.nio.ByteBuffer
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ExecutorService
@@ -37,7 +35,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var cameraExecutor: ExecutorService
     private lateinit var viewFinder: PreviewView
     private lateinit var filepath: Uri
+    private val mAccessToken: String = "BQDa2nbH3626ONTFFpNg9cPULCBrK5az-nOem1tT0eAqyGehx07tybbjN23eihgBZSxuQv5hot7sDWPO7PSQlLBohvPpq15yUah7mQktoyG19pJR1zkqAmQaht51L1agViI-StDo4lhsr7lwAI3zx9Oq3uOA458"
     val recognizer = TextRecognition.getClient()
+
     override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             setContentView(R.layout.activity_main)
@@ -89,6 +89,7 @@ class MainActivity : AppCompatActivity() {
             override fun onError(exc: ImageCaptureException) {
                 Log.e(TAG, "Photo capture failed: ${exc.message}", exc)
             }
+
             override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                 filepath = Uri.fromFile(photoFile)
                 val savedUri = Uri.fromFile(photoFile)
@@ -135,7 +136,7 @@ class MainActivity : AppCompatActivity() {
                 cameraProvider.bindToLifecycle(
                         this, cameraSelector, imageAnalyzer, preview, imageCapture)
 
-            } catch(exc: Exception) {
+            } catch (exc: Exception) {
                 Log.e(TAG, "Use case binding failed", exc)
             }
         }, ContextCompat.getMainExecutor(this))
