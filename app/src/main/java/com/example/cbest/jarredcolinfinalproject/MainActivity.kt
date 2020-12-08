@@ -23,6 +23,7 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
 import java.io.File
+import java.io.IOException
 import java.nio.ByteBuffer
 import java.text.SimpleDateFormat
 import java.util.*
@@ -35,7 +36,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var outputDirectory: File
     private lateinit var cameraExecutor: ExecutorService
     private lateinit var viewFinder: PreviewView
-    private lateinit var artist: Text
+    private lateinit var filepath: Uri
     val recognizer = TextRecognition.getClient()
     override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
@@ -67,7 +68,7 @@ class MainActivity : AppCompatActivity() {
             if (mediaImage != null) {
                 proxImage = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
             }
-            imageProxy.close();
+            //imageProxy.close();
         }
     }
     private fun takePhoto() { // Get a stable reference of the modifiable image capture use case
@@ -89,6 +90,7 @@ class MainActivity : AppCompatActivity() {
                 Log.e(TAG, "Photo capture failed: ${exc.message}", exc)
             }
             override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+                filepath = Uri.fromFile(photoFile)
                 val savedUri = Uri.fromFile(photoFile)
                 val msg = "Photo capture succeeded: $savedUri"
                 Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
@@ -136,7 +138,6 @@ class MainActivity : AppCompatActivity() {
             } catch(exc: Exception) {
                 Log.e(TAG, "Use case binding failed", exc)
             }
-
         }, ContextCompat.getMainExecutor(this))
     }
     private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
@@ -165,24 +166,28 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun onClick(view: View) {
-        when(view.id)
-        {
-            R.id.btnScan->{
+        when (view.id) {
+            R.id.btnScan -> {
                 takePhoto()
             } // Scan Text from Camera
-            R.id.btnFind->{
-               // YourImageAnalyzer().analyze(proxImage)
-                Log.d(TAG,"You pressed button")
-                val result = recognizer.process(proxImage)
-                        .addOnSuccessListener { visionText ->
-                            Log.d(TAG, "We GOT TEXT")
-                            for(block in visionText.textBlocks) {
-                                val blockText = block.text
-                                val blockCornerPoints = block.cornerPoints
-                                val blockFrame = block.boundingBox
-                                artist.textBlocks.add(block)
-                                Log.e(TAG, "BIG NERD" + block.text)
-                                /*for(line in block.lines) {
+            R.id.btnFind -> {
+                val image: InputImage
+                try {
+                    image = InputImage.fromFilePath(this, filepath)
+
+                    // YourImageAnalyzer().analyze(proxImage)
+                    Log.d(TAG, "You pressed button")
+                    if (!proxImage.equals(null)) {
+                        val result = recognizer.process(image)
+                                .addOnSuccessListener { visionText ->
+                                    Log.d(TAG, "We GOT TEXT : " + visionText.text)
+                                    for (block in visionText.textBlocks) {
+                                        val blockText = block.text
+                                        val blockCornerPoints = block.cornerPoints
+                                        val blockFrame = block.boundingBox
+
+                                        Log.e(TAG, "BIG NERD" + block.text)
+                                        /*for(line in block.lines) {
                                     val lineText = line.text
                                     val lineCornerPoints = line.cornerPoints
                                     val lineFrame = line.boundingBox
@@ -194,16 +199,21 @@ class MainActivity : AppCompatActivity() {
                                         val elementFrame = element.boundingBox
                                 }
                             }*/
-                        }
-                        }
-                        .addOnFailureListener { e ->
-                            // Task failed with an exception
-                            // ...
-                        }
-            } // Find Artist based on Scanned text/image whatever
+                                    }
+                                }
+                                .addOnFailureListener { e ->
+                                    Log.e(TAG, e.toString() + " ML KIT FAILURE LOSER")
+                                }
+                    } else {
+                        Log.d(TAG, "Prox Image was null")
+                    }
+                } // Find Artist based on Scanned text/image whatever
+                catch (e: IOException) {
+                    e.printStackTrace()
+                }
+            }
         }
     }
-
     companion object {
         private lateinit var proxImage: InputImage
         private const val TAG = "CameraXBasic"
