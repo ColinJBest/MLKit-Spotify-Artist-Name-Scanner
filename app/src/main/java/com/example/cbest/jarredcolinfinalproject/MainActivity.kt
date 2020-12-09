@@ -6,12 +6,12 @@ package com.example.cbest.jarredcolinfinalproject
 // This helped a lot with getting the camera working
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
@@ -20,6 +20,7 @@ import androidx.camera.view.PreviewView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
 import java.io.File
 import java.io.IOException
@@ -30,7 +31,6 @@ import java.util.concurrent.Executors
 
 class MainActivity : AppCompatActivity() {
     private var imageCapture: ImageCapture? = null
-
     private lateinit var outputDirectory: File
     private lateinit var cameraExecutor: ExecutorService
     private lateinit var viewFinder: PreviewView
@@ -47,8 +47,7 @@ class MainActivity : AppCompatActivity() {
             ActivityCompat.requestPermissions(
                     this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
         }
-            // setup the textView to display text found
-            var textView: TextView;
+
             viewFinder = findViewById<PreviewView>(R.id.viewFinder);
             // the on-device model for text recognition
         outputDirectory = getOutputDirectory()
@@ -172,6 +171,7 @@ class MainActivity : AppCompatActivity() {
                 takePhoto()
             } // Scan Text from Camera
             R.id.btnFind -> {
+                var textPass = ""
                 val image: InputImage
                 try {
                     image = InputImage.fromFilePath(this, filepath)
@@ -181,12 +181,13 @@ class MainActivity : AppCompatActivity() {
                     if (!proxImage.equals(null)) {
                         val result = recognizer.process(image)
                                 .addOnSuccessListener { visionText ->
+
                                     Log.d(TAG, "We GOT TEXT : " + visionText.text)
                                     for (block in visionText.textBlocks) {
                                         val blockText = block.text
                                         val blockCornerPoints = block.cornerPoints
                                         val blockFrame = block.boundingBox
-
+                                        textPass = textPass + " " + block.text
                                         Log.e(TAG, "BIG NERD" + block.text)
                                         /*for(line in block.lines) {
                                     val lineText = line.text
@@ -205,6 +206,9 @@ class MainActivity : AppCompatActivity() {
                                 .addOnFailureListener { e ->
                                     Log.e(TAG, e.toString() + " ML KIT FAILURE LOSER")
                                 }
+                        val intent = Intent(baseContext, ArtistInformationActivity::class.java)
+                        intent.putExtra("ArtistName", textPass)
+                        startActivity(intent)
                     } else {
                         Log.d(TAG, "Prox Image was null")
                     }
@@ -216,10 +220,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
     companion object {
+        public const val REQUEST_CODE_SPOTIFY_LOGIN = 42
         private lateinit var proxImage: InputImage
         private const val TAG = "CameraXBasic"
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
         private const val REQUEST_CODE_PERMISSIONS = 10
         private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
     }
+
 } // End Main
