@@ -166,18 +166,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun onClick(view: View) {
+        var textPass: String = ""
         when (view.id) {
             R.id.btnScan -> {
                 takePhoto()
             } // Scan Text from Camera
             R.id.btnFind -> {
-                var textPass = ""
                 val image: InputImage
                 try {
                     image = InputImage.fromFilePath(this, filepath)
-
-                    // YourImageAnalyzer().analyze(proxImage)
-                    Log.d(TAG, "You pressed button")
                     if (!proxImage.equals(null)) {
                         val result = recognizer.process(image)
                                 .addOnSuccessListener { visionText ->
@@ -188,31 +185,20 @@ class MainActivity : AppCompatActivity() {
                                         val blockCornerPoints = block.cornerPoints
                                         val blockFrame = block.boundingBox
                                         textPass = textPass + " " + block.text
-                                        Log.e(TAG, "BIG NERD" + block.text)
-                                        /*for(line in block.lines) {
-                                    val lineText = line.text
-                                    val lineCornerPoints = line.cornerPoints
-                                    val lineFrame = line.boundingBox
-
-                                    for (element in line.elements) {
-
-                                        val elementText = element.text
-                                        val elementCornerPoints = element.cornerPoints
-                                        val elementFrame = element.boundingBox
-                                }
-                            }*/
                                     }
+                                    val intent = Intent(baseContext, ArtistInformationActivity::class.java)
+                                    Log.e(TAG, "BIG NERD" + textPass)
+                                    intent.putExtra("artist", textPass)
+                                    startActivity(intent)
                                 }
                                 .addOnFailureListener { e ->
-                                    Log.e(TAG, e.toString() + " ML KIT FAILURE LOSER")
+                                    Log.e(TAG, e.toString())
                                 }
-                        val intent = Intent(baseContext, ArtistInformationActivity::class.java)
-                        intent.putExtra("ArtistName", textPass)
-                        startActivity(intent)
+
                     } else {
                         Log.d(TAG, "Prox Image was null")
                     }
-                } // Find Artist based on Scanned text/image whatever
+                } // Find Artist based on Scanned text/image
                 catch (e: IOException) {
                     e.printStackTrace()
                 }
@@ -220,7 +206,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
     companion object {
-        public const val REQUEST_CODE_SPOTIFY_LOGIN = 42
         private lateinit var proxImage: InputImage
         private const val TAG = "CameraXBasic"
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"

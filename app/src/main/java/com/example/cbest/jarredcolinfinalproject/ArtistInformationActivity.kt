@@ -7,106 +7,47 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
-import com.google.mlkit.vision.common.InputImage
-import com.pghaz.spotify.webapi.auth.SpotifyAuthorizationCallback
-import com.pghaz.spotify.webapi.auth.SpotifyAuthorizationClient
-import io.github.kaaes.spotify.webapi.core.models.UserPrivate
-import net.openid.appauth.TokenResponse
+import com.adamratzman.spotify.SpotifyApiOptionsBuilder
+import com.adamratzman.spotify.spotifyAppApi
 
-class ArtistInformationActivity : AppCompatActivity(), SpotifyAuthorizationCallback.Authorize, SpotifyAuthorizationCallback.RefreshToken  {
-    lateinit var spotifyAuthClient: SpotifyAuthorizationClient
-    private fun initSpotifyAuthClient() {
-        spotifyAuthClient = SpotifyAuthorizationClient
-            .Builder("7e6e0e4f8ebe4b6aa021e7e457b97572", "random://callback")
-//                .setScopes(
-//                        arrayOf(
-//                                "app-remote-control",
-//                                "user-read-recently-played"
-//                        )
-//                )
-            //               .setCustomTabColor(Color.RED)
-            //              .setFetchUserAfterAuthorization(true)
-            .build(this)
+class ArtistInformationActivity : AppCompatActivity()  {
+    lateinit var clientID: String
+    lateinit var clientSecret: String
 
-        spotifyAuthClient.addAuthorizationCallback(this)
-        spotifyAuthClient.addRefreshTokenCallback(this)
-    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_artist_information)
         val textView: TextView = findViewById(R.id.txtArtistInfo)
-        textView.setText(intent.getStringExtra("ArtistName").toString())
-        Log.e("LOGGING", intent.getStringExtra("ArtistName").toString())
+        val artistName = intent.getStringExtra("artist")
 
-        initSpotifyAuthClient()
-
-        if (spotifyAuthClient.isAuthorized()) {
-            if (spotifyAuthClient.getNeedsTokenRefresh()) {
-                spotifyAuthClient.refreshAccessToken()
-            } else {
-                onSpotifyAuthorizedAndAvailable(spotifyAuthClient.getLastTokenResponse()?.accessToken)
-            }
-        } else {
-            spotifyAuthClient.authorize(this, MainActivity.REQUEST_CODE_SPOTIFY_LOGIN)
+        if (artistName != null) {
+            Log.e("LOGGING", artistName)
         }
 
-    }
 
-    private fun onSpotifyAuthorizedAndAvailable(accessToken: String?) {
-        // make your Spotify Web API calls here
-        Toast.makeText(this, accessToken, Toast.LENGTH_SHORT).show()
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        // At this point it is authorized but we don't have access token yet.
-        // We get it when onAuthorizationSucceed() is called
-        spotifyAuthClient.onActivityResult(requestCode, resultCode, data)
-    }
-
-    override fun onStart() {
-        super.onStart()
-        spotifyAuthClient.onStart()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        spotifyAuthClient.onStop()
-    }
-
-
-    override fun onAuthorizationCancelled() {
-        Toast.makeText(this, "auth cancelled", Toast.LENGTH_SHORT).show()
-    }
-
-    override fun onAuthorizationFailed(error: String?) {
-        Toast.makeText(this, "auth failed", Toast.LENGTH_SHORT).show()
-    }
-
-    override fun onAuthorizationRefused(error: String?) {
-        Toast.makeText(this, "auth refused", Toast.LENGTH_SHORT).show()
-    }
-
-    override fun onAuthorizationStarted() {
-        Toast.makeText(this, "auth start", Toast.LENGTH_SHORT).show()
-    }
-
-    override fun onAuthorizationSucceed(tokenResponse: TokenResponse?, user: UserPrivate?) {
-        onSpotifyAuthorizedAndAvailable(tokenResponse?.accessToken)
-    }
-
-    override fun onRefreshAccessTokenStarted() {
-        Toast.makeText(this, "refresh start", Toast.LENGTH_SHORT).show()
-    }
-
-    override fun onRefreshAccessTokenSucceed(tokenResponse: TokenResponse?, user: UserPrivate?) {
-        onSpotifyAuthorizedAndAvailable(tokenResponse?.accessToken)
-    }
-    override fun onDestroy() {
-        super.onDestroy()
-        spotifyAuthClient.removeAuthorizationCallback(this)
-        spotifyAuthClient.removeRefreshTokenCallback(this)
-        spotifyAuthClient.onDestroy()
+        val token = spotifyAppApi("3be87163056a4e2287252ee400bb051b", "96322df2437d4f54bb3cfd6b45f7488b").build().token
+        val apiBuilder = spotifyAppApi(
+                "clientId",
+                "clientSecret",
+                token,
+                SpotifyApiOptionsBuilder(
+                        automaticRefresh = false
+                )
+        ).build()
+        Log.d("TAG", "API SHIT: " + apiBuilder.browse.getNewReleases().complete())
+        println(apiBuilder.browse.getNewReleases().complete()) // use it
+        if (artistName != null) {
+            Log.d(
+                "TAG",
+                "ID OF BULLSHIT" + apiBuilder.search.searchArtist(artistName).complete()[0].name
+            )
+        var artists = ""
+            for(artist in apiBuilder.search.searchArtist(artistName).complete())
+                {if (artist != null) {
+                    artists += "\nName: " + artist.name + " Popularity: " + artist.popularity + " Followers: " + artist.followers
+                }
+            }
+        textView.setText(artists)
+        }
     }
 }

@@ -8,8 +8,8 @@
 
     <TextView
         android:id="@+id/txtArtistInfo"
-        android:layout_width="351dp"
-        android:layout_height="606dp"
+        android:layout_width="266dp"
+        android:layout_height="530dp"
         android:text="hjicvutfu"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
