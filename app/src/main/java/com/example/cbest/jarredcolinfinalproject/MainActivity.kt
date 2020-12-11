@@ -35,7 +35,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var cameraExecutor: ExecutorService
     private lateinit var viewFinder: PreviewView
     private lateinit var filepath: Uri
-    private val mAccessToken: String = "BQDa2nbH3626ONTFFpNg9cPULCBrK5az-nOem1tT0eAqyGehx07tybbjN23eihgBZSxuQv5hot7sDWPO7PSQlLBohvPpq15yUah7mQktoyG19pJR1zkqAmQaht51L1agViI-StDo4lhsr7lwAI3zx9Oq3uOA458"
     val recognizer = TextRecognition.getClient()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,7 +66,6 @@ class MainActivity : AppCompatActivity() {
             if (mediaImage != null) {
                 proxImage = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
             }
-            //imageProxy.close();
         }
     }
     private fun takePhoto() { // Get a stable reference of the modifiable image capture use case
@@ -94,7 +92,6 @@ class MainActivity : AppCompatActivity() {
                 val savedUri = Uri.fromFile(photoFile)
                 val msg = "Photo capture succeeded: $savedUri"
                 Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
-                Log.d(TAG, msg)
             }
         })
     } // TakePhoto
@@ -170,24 +167,18 @@ class MainActivity : AppCompatActivity() {
         when (view.id) {
             R.id.btnScan -> {
                 takePhoto()
-            } // Scan Text from Camera
+            } // Scan Text from Camera/File Storage
             R.id.btnFind -> {
                 val image: InputImage
                 try {
                     image = InputImage.fromFilePath(this, filepath)
                     if (!proxImage.equals(null)) {
-                        val result = recognizer.process(image)
+                        recognizer.process(image)
                                 .addOnSuccessListener { visionText ->
-
-                                    Log.d(TAG, "We GOT TEXT : " + visionText.text)
                                     for (block in visionText.textBlocks) {
-                                        val blockText = block.text
-                                        val blockCornerPoints = block.cornerPoints
-                                        val blockFrame = block.boundingBox
                                         textPass = textPass + " " + block.text
                                     }
                                     val intent = Intent(baseContext, ArtistInformationActivity::class.java)
-                                    Log.e(TAG, "BIG NERD" + textPass)
                                     intent.putExtra("artist", textPass)
                                     startActivity(intent)
                                 }
@@ -196,13 +187,13 @@ class MainActivity : AppCompatActivity() {
                                 }
 
                     } else {
-                        Log.d(TAG, "Prox Image was null")
+                        Log.e(TAG, "Prox Image was null")
                     }
                 } // Find Artist based on Scanned text/image
                 catch (e: IOException) {
                     e.printStackTrace()
                 }
-            }
+            }//Find artist name from image and send it to next activity
         }
     }
     companion object {

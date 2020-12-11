@@ -3,4 +3,5 @@
     <string name="welcome">Welcome to the Spotify Artist Finder Scanner</string>
     <string name="scan">Open Scanner</string>
     <string name="find">Find Artist</string>
+    <string name="contDesc">Artist Image</string>
 </resources>
