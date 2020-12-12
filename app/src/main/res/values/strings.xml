@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">JarredColinFinalProject</string>
     <string name="welcome">Welcome to the Spotify Artist Finder Scanner</string>
-    <string name="scan">Open Scanner</string>
-    <string name="find">Find Artist</string>
+    <string name="scan">Take Picture</string>
+    <string name="find">Scan Picture and Find Artists</string>
     <string name="contDesc">Artist Image</string>
 </resources>

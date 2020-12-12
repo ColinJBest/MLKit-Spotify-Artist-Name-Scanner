@@ -13,19 +13,11 @@ import java.io.InputStream
 import java.net.URL
 import java.text.DecimalFormat
 
-
-// LW Change to ArrayList
+// I stole this from your example mwahaha
 class MyRecyclerAdapter(private val myDataset: ArrayList<Artist>) :
         RecyclerView.Adapter<MyRecyclerAdapter.MyViewHolder>() {
 
-    // Provide a reference to the views for each data item
-    // Complex data items may need more than one view per item, and
-    // you provide access to all the views for a data item in a view holder.
-    // Each data item is just a string in this case that is shown in a TextView.
-
-    // LW change from TextView to view
     class MyViewHolder(val view: View) : RecyclerView.ViewHolder(view)
-
 
     // Create new views (invoked by the layout manager)
     override fun onCreateViewHolder(parent: ViewGroup,
@@ -48,8 +40,11 @@ class MyRecyclerAdapter(private val myDataset: ArrayList<Artist>) :
         // LW use the view and drill down to the textview in the layout
          holder.view.findViewById<TextView>(R.id.textViewRecyclerItem).text = "" + myDataset[position].name
         val decFormat: DecimalFormat = DecimalFormat("#,###")
+        // Grab the follower textview as well to edit
         holder.view.findViewById<TextView>(R.id.textViewFollowers).text = ("Followers: " + String.format("%,d",myDataset[position].followers.total)).padEnd(35, '\t')
+        //Add an if statement in case there isn't an artist image (was crashing previously)
         if(!myDataset[position].images.isEmpty())
+            //Add the image using Picasso since they are URLs
             Picasso.get().load(myDataset[position].images[0].url).into(holder.view.findViewById<ImageView>(R.id.imageViewArtist))
     }
 

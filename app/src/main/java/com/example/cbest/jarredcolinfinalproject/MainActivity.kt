@@ -40,6 +40,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             setContentView(R.layout.activity_main)
+        getSupportActionBar()?.setTitle("Spotify Artist Scanner");
         if (allPermissionsGranted()) {
             startCamera()
         } else {
