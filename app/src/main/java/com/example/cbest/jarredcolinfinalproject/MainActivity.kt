@@ -9,6 +9,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
@@ -37,7 +38,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewFinder: PreviewView
     private lateinit var filepath: Uri
     val recognizer = TextRecognition.getClient()
-
+    var mediaPlayer: MediaPlayer? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -48,6 +49,10 @@ class MainActivity : AppCompatActivity() {
             ActivityCompat.requestPermissions(
                     this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
         }
+
+        mediaPlayer = MediaPlayer.create(this,R.raw.soundeffectcamerashutter)
+
+
 
         viewFinder = findViewById<PreviewView>(R.id.viewFinder);
         // the on-device model for text recognition
@@ -179,6 +184,9 @@ class MainActivity : AppCompatActivity() {
         when (view.id) {
             R.id.btnScan -> {
                 takePhoto()
+                if(!mediaPlayer?.isPlaying!!) {
+                    mediaPlayer?.start()
+                }
             } // Scan Text from Camera/File Storage
             R.id.btnGallery -> {
                 Log.d(TAG, "You pushed the gallery button")
