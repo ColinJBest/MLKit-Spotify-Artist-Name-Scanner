@@ -6,10 +6,12 @@ package com.example.cbest.jarredcolinfinalproject
 // This helped a lot with getting the camera working
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.view.View
 import android.widget.Toast
@@ -20,7 +22,6 @@ import androidx.camera.view.PreviewView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
 import java.io.File
 import java.io.IOException
@@ -38,8 +39,8 @@ class MainActivity : AppCompatActivity() {
     val recognizer = TextRecognition.getClient()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-            super.onCreate(savedInstanceState)
-            setContentView(R.layout.activity_main)
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
         getSupportActionBar()?.setTitle("Spotify Artist Scanner");
         if (allPermissionsGranted()) {
             startCamera()
@@ -48,12 +49,12 @@ class MainActivity : AppCompatActivity() {
                     this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
         }
 
-            viewFinder = findViewById<PreviewView>(R.id.viewFinder);
-            // the on-device model for text recognition
+        viewFinder = findViewById<PreviewView>(R.id.viewFinder);
+        // the on-device model for text recognition
         outputDirectory = getOutputDirectory()
-            val recognizer = TextRecognition.getClient()
+        val recognizer = TextRecognition.getClient()
         cameraExecutor = Executors.newSingleThreadExecutor()
-        } // OnCreate
+    } // OnCreate
 
     override fun onDestroy() {
         super.onDestroy()
@@ -162,13 +163,29 @@ class MainActivity : AppCompatActivity() {
         return if (mediaDir != null && mediaDir.exists())
             mediaDir else filesDir
     }
+    //handle result of picked image
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == Activity.RESULT_OK && requestCode == 1000){
+            Log.d("BIG BONGO", data?.data.toString())
+            if (data != null) {
 
+                filepath = data?.data!!
+            }
+        }
+    }
     fun onClick(view: View) {
         var textPass: String = ""
         when (view.id) {
             R.id.btnScan -> {
                 takePhoto()
             } // Scan Text from Camera/File Storage
+            R.id.btnGallery -> {
+                Log.d(TAG, "You pushed the gallery button")
+                val intent = Intent(Intent.ACTION_PICK)
+                intent.type = "image/*"
+                startActivityForResult(intent, 1000)
+            }// Scan text from Gallery image
             R.id.btnFind -> {
                 val image: InputImage
                 try {
@@ -186,7 +203,6 @@ class MainActivity : AppCompatActivity() {
                                 .addOnFailureListener { e ->
                                     Log.e(TAG, e.toString())
                                 }
-
                     } else {
                         Log.e(TAG, "Prox Image was null")
                     }
@@ -197,12 +213,13 @@ class MainActivity : AppCompatActivity() {
             }//Find artist name from image and send it to next activity
         }
     }
+
     companion object {
         private lateinit var proxImage: InputImage
         private const val TAG = "CameraXBasic"
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
         private const val REQUEST_CODE_PERMISSIONS = 10
-        private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
+        private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE)
     }
 
 } // End Main

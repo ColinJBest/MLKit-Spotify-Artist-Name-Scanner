@@ -4,4 +4,5 @@
     <string name="scan">Take Picture</string>
     <string name="find">Scan Picture and Find Artists</string>
     <string name="contDesc">Artist Image</string>
+    <string name="choose">Choose Gallery Image</string>
 </resources>
