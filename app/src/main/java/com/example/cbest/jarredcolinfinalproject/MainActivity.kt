@@ -12,7 +12,6 @@ import android.content.pm.PackageManager
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.util.Log
 import android.view.View
 import android.widget.Toast
@@ -44,13 +43,14 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         getSupportActionBar()?.setTitle("Spotify Artist Scanner");
         if (allPermissionsGranted()) {
-            startCamera()
+            if(this.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA))
+                startCamera()
         } else {
             ActivityCompat.requestPermissions(
                     this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
         }
 
-        mediaPlayer = MediaPlayer.create(this,R.raw.soundeffectcamerashutter)
+        mediaPlayer = MediaPlayer.create(this, R.raw.soundeffectcamerashutter)
 
 
 
@@ -184,7 +184,7 @@ class MainActivity : AppCompatActivity() {
         when (view.id) {
             R.id.btnScan -> {
                 takePhoto()
-                if(!mediaPlayer?.isPlaying!!) {
+                if (!mediaPlayer?.isPlaying!!) {
                     mediaPlayer?.start()
                 }
             } // Scan Text from Camera/File Storage
