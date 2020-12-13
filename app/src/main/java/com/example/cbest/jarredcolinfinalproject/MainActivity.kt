@@ -44,16 +44,15 @@ class MainActivity : AppCompatActivity() {
         getSupportActionBar()?.setTitle("Spotify Artist Scanner");
         if (allPermissionsGranted()) {
             if(this.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA))
+            {
                 startCamera()
+            }
         } else {
             ActivityCompat.requestPermissions(
                     this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
         }
 
         mediaPlayer = MediaPlayer.create(this, R.raw.soundeffectcamerashutter)
-
-
-
         viewFinder = findViewById<PreviewView>(R.id.viewFinder);
         // the on-device model for text recognition
         outputDirectory = getOutputDirectory()
