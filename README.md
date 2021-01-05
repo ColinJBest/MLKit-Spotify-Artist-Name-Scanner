@@ -9,6 +9,11 @@ Upon receiving the information from the API it will display every artist's first
 
 There are two ways to get an image. The first is to use your phone's camera to take a photograph, and the other is to choose one from your phone's gallery.
 
+## Running the App
+
+Build it and run it with Android Studio
+
+**Note: if ran in an emulator it will crash, use a physical android phone if available.**
+
 Some libraries used in this project are MLKit, Camerax, Picasso, CardView, RecyclerView, spotify-web-api-kotlin
 
-# Note: if ran in an emulator it will crash, use a physical android phone if available.
