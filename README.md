@@ -3,7 +3,7 @@
 Authors: Colin Best and Jarred Brown
 
 
-The project is a Kotlin based MLKit application which can scan text from an image and after pressing a button to go to a new activity, then search the Spotify Web-API for artists related to the text. 
+The project is a Kotlin based MLKit application which can scan text using OCR from an image and after pressing a button to go to a new activity, then search the Spotify Web-API for artists related to the text. 
 
 Upon receiving the information from the API it will display every artist's first photograph associated with their information, name, and number of followers.
 
